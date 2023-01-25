@@ -4,19 +4,19 @@ This project is based on the SMPL and UNet++ model to construct a targeted human
 
 Folder structure: \
 Vertex2Image \
-    | checkpoint \
-    | data \
-        | person_1 \
-            | images_256by256   (ground truth images) \
-            | color_inputs.json (color information) \
-            | vert_rot.json     (joint rotation information) \
-            | camera.pkl        (camera parameters) \
-        | person_2 \
-            | ...... \
-        | person_n \
-            | ...... \
-    | output \
-    | .py files ..... \
+    >>>> | checkpoint \
+    >>>> | data \
+        >>>> >>>> | person_1 \
+        >>>> >>>> >>>> | images_256by256   (ground truth images) \
+        >>>> >>>> >>>> | color_inputs.json (color information) \
+        >>>> >>>> >>>> | vert_rot.json     (joint rotation information) \
+        >>>> >>>> >>>> | camera.pkl        (camera parameters) \
+        >>>> >>>> | person_2 \
+        >>>> >>>> >>>> | ...... \
+        >>>> >>>> | person_n \
+        >>>> >>>> >>>> | ...... \
+    >>>> | output \
+    >>>> | .py files ..... \
 
 \
 To run the model, just run "py train.py". If you want to customize to your dataset, the prerequisit steps are images (extracted from videos) and SMPL information (vertices and joint rotation). It is not neccessary to extract images. One can easily modify the code and run directly with a video source. For using CV2, make sure to convert the image to RBG format before feeding the frames into the model. I may implement the video input method in the future.
