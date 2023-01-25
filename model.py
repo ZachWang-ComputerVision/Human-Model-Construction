@@ -89,11 +89,7 @@ class Vertex2Image(nn.Module):
     assert vertex_feature.size(0) == input_channels
     half_input_channels = input_channels // 2
 
-    # self.vertex_feature = vertex_feature
-    # self.vertex_encoding = nn.Linear(n_vertex, n_vertex)
-    # self.layer_norm = nn.LayerNorm(n_vertex)
-
-    self.bridge_layer_1 = nn.Conv2d(6, half_input_channels, kernel_size=5, stride=1, padding=2)
+    self.bridge_layer_1 = nn.Conv2d(3, half_input_channels, kernel_size=5, stride=1, padding=2)
     self.bn1 = nn.BatchNorm2d(half_input_channels)
     self.bridge_layer_2 = nn.Conv2d(half_input_channels, input_channels, kernel_size=5, stride=1, padding=2)
     self.bn2 = nn.BatchNorm2d(input_channels)
@@ -161,12 +157,14 @@ class Vertex2Image(nn.Module):
     self.encode_128_256_3 = Block(input_channels, input_channels, downsample=False, upsample=True)
     self.encode_128_256_4 = Block(input_channels, input_channels, downsample=False, upsample=True)
     
-    self.cat_encode_256 = Block(input_channels * 2, input_channels * 2, downsample=False, upsample=False)
+    self.encode_motion = nn.Conv2d(3, input_channels, kernel_size=5, stride=1, padding=2)
+    self.bn4 = nn.BatchNorm2d(input_channels)
+    self.cat_encode_256 = Block(input_channels * 3, input_channels * 3, downsample=False, upsample=False)
     
-    self.shrink = nn.Conv2d(input_channels * 2, half_input_channels, kernel_size=3, stride=1, padding=1)
-    self.bn4 = nn.BatchNorm2d(half_input_channels)
-    self.shrink_2 = nn.Conv2d(half_input_channels, half_input_channels, kernel_size=3, stride=1, padding=1)
-    self.bn5 = nn.BatchNorm2d(half_input_channels)
+    self.shrink = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
+    self.bn5 = nn.BatchNorm2d(input_channels)
+    self.shrink_2 = nn.Conv2d(input_channels, half_input_channels, kernel_size=3, stride=1, padding=1)
+    self.bn6 = nn.BatchNorm2d(half_input_channels)
     self.pred_fg = nn.Conv2d(half_input_channels, 3, kernel_size=3, stride=1, padding=1)
     self.sigmoid = nn.Sigmoid()
 
@@ -186,32 +184,7 @@ class Vertex2Image(nn.Module):
       self.apply(weight_init)
 
 
-  def forward(self, x):
-    
-    # n_batch_positions = torch.stack([
-    #     torch.unsqueeze(self.positions * position_mask[i], dim=2) for i in range(x.size(0))
-    #   ])
-    # n_batch_positions = self.positional_encoding(n_batch_positions)
-    # print("n_batch_positions: ", n_batch_positions.shape)
-    # n_batch_positions = torch.permute(n_batch_positions, (0, 3, 1, 2))
-    # assert x.size() == v.size()
-
-    # vertex_encoding = self.vertex_encoding(self.vertex_feature)   # input_channel x 6890
-    # vertex_encoding = self.layer_norm(vertex_encoding)
-    # vertex_encoding = vertex_encoding.T
-
-    # B, H, W = mask.size()
-
-    # vertex_feature_map = torch.zeros((B, vertex_encoding.size(1), H, W), dtype=torch.float32)
-
-    # for b, batch_item in enumerate(mask):
-    #   for i, row_item in enumerate(batch_item):
-    #     for j, item in enumerate(row_item):
-    #       if torch.isnan(item) == False:
-    #         vertex_feature_map[b, :, i, j] = vertex_encoding[int(item)]
-
-    # if cuda:
-    #   vertex_feature_map = vertex_feature_map.cuda()
+  def forward(self, x, motion_vector):
 
     x = self.bridge_layer_1(x)
     x = self.bn1(x)
@@ -292,13 +265,15 @@ class Vertex2Image(nn.Module):
     connect_256_256_4 = self.connect_256_256_4(cat_256_3)
     encode_128_256_4 = self.encode_128_256_4(cat_128_3)
 
-    cat_256_4 = torch.cat( (encode_128_256_4, connect_256_256_4), 1 )
+    motions = self.encode_motion(motion_vector)
+    motions = self.bn4(motions)
+    cat_256_4 = torch.cat( (encode_128_256_4, connect_256_256_4, motions), 1 )
     cat_encode_256 = self.cat_encode_256(cat_256_4)
 
     out = self.shrink(cat_encode_256)
-    out = self.bn4(out)
-    out = self.shrink_2(out)
     out = self.bn5(out)
+    out = self.shrink_2(out)
+    out = self.bn6(out)
     out = self.pred_fg(out)
     out = self.sigmoid(out)
 

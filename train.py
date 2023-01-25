@@ -110,14 +110,17 @@ for e in range(epoch):
         gt_image_batch = torch.tensor(gt_image_batch, dtype=torch.float32)
         c_batch = torch.tensor(c_batch, dtype=torch.float32)
         c_batch = norm(c_batch)
-        inputs = torch.cat((c_batch, torch.tensor(v_batch, dtype=torch.float32)), 1)
+        v_batch = torch.tensor(v_batch, dtype=torch.float32)
+        # inputs = torch.cat((c_batch, torch.tensor(v_batch, dtype=torch.float32)), 1)
 
         if cuda:
           gt_image_batch = gt_image_batch.cuda()
-          inputs = inputs.cuda()
+          c_batch = c_batch.cuda()
+          v_batch = v_batch.cuda()
+          # inputs = inputs.cuda()
 
         optimizer.zero_grad()
-        y = model(inputs)
+        y = model(c_batch, v_batch)
 
         if j % 20 == 0:
           

@@ -1,0 +1,5 @@
+numpy
+pillow
+json
+h5py
+opencv-python
