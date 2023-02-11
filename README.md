@@ -6,9 +6,9 @@ This project is based on the SMPL and UNet++ model to construct a targeted human
 
 Folder structure: \
 Vertex2Image \
-&emsp | checkpoint \
-&emsp &emsp | data \
-&emsp &emsp &emsp | person_1 \
+&emsp; | checkpoint \
+&emsp; &emsp; | data \
+&emsp; &emsp; &emsp; | person_1 \
         -- -- -- images_256by256   (ground truth images) \
         -- -- -- color_inputs.json (color information) \
         -- -- -- vert_rot.json     (joint rotation information) \
@@ -21,7 +21,12 @@ Vertex2Image \
     -- .py files .....
 
 Output from Vertex2Image model:
-![alt text](./results/p1.png) ![alt text](./results/p2.png) ![alt text](./results/p3.png) ![alt text](./results/p4.png) ![alt text](./results/p5.png)
+<br />s
+<img src="./results/p1.png" width="100" height="100" />
+<img src="./results/p2.png" width="100" height="100" />
+<img src="./results/p3.png" width="100" height="100" />
+<img src="./results/p4.png" width="100" height="100" />
+<img src="./results/p5.png" width="100" height="100" />
 
 <br />
 To run the model, just run "py train.py". If you want to customize to your dataset, the prerequisit steps are extracted images from videos and SMPL information (vertices and joint rotation). It is not neccessary to extract images because you can easily modify the code and run directly with a video source. If you use CV2, make sure to convert the image to RBG format before feeding the frames into the model. I may implement the video input method in the future.
