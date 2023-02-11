@@ -2,3 +2,4 @@ __pycache__/
 data/
 output/
 checkpoint/
+Vertex2Image.ipynb
