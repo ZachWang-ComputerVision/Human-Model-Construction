@@ -44,12 +44,12 @@ To run the model, just run "py train.py". If you want to customize to your datas
 The requirements.txt does not include torch package. Any 1.XX version of Pytorch works with the code. If you do not want to train on GPU, just set "CUDA = False" in the train.py file.
 
 <br />
-**Overall Architecture**
+
+**Model Architecture**
+
 <br />
 <img src="./results/model.png" />
 
 <br />
 
-**UNet ++**
-<br />
 <img src="./results/unet++.png" />
