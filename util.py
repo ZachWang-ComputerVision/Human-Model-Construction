@@ -8,7 +8,8 @@ def get_folder_paths(folder="./data/"):
     dataset_folders = []
     for path in glob.glob(folder + "*"):
         dataset_folders.append(path)
-    dataset_folders = dataset_folders[0:5]
+    # dataset_folders = dataset_folders[0:5]
+    dataset_folders = [dataset_folders[1]]
     print("dataset paths: ", dataset_folders)
     return dataset_folders
 

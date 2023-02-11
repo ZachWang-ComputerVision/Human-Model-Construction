@@ -95,6 +95,9 @@ class Vertex2Image(nn.Module):
     self.bn2 = nn.BatchNorm2d(input_channels)
     self.concat_decode_256 = Block(input_channels, input_channels, downsample=False, upsample=False)
     self.bn3 = nn.BatchNorm2d(input_channels)
+
+    self.encode_motion = nn.Conv2d(3, input_channels, kernel_size=5, stride=1, padding=2)
+    self.bn4 = nn.BatchNorm2d(input_channels)
     
     self.relu = nn.LeakyReLU(inplace=True)
 
@@ -125,9 +128,9 @@ class Vertex2Image(nn.Module):
     self.connect_64_64_2 = Block(input_channels, input_channels, downsample=False, upsample=False)
 
     # Transition Layer
-    self.transit_256_1 = nn.Conv2d(input_channels * 2, input_channels, kernel_size=3, stride=1, padding=1)
-    self.transit_256_2 = nn.Conv2d(input_channels * 2, input_channels, kernel_size=3, stride=1, padding=1)
-    self.transit_256_3 = nn.Conv2d(input_channels * 2, input_channels, kernel_size=3, stride=1, padding=1)
+    self.transit_256_1 = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
+    self.transit_256_2 = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
+    self.transit_256_3 = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
     self.transit_128_1 = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
     self.transit_128_2 = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
     self.transit_128_3 = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
@@ -157,11 +160,9 @@ class Vertex2Image(nn.Module):
     self.encode_128_256_3 = Block(input_channels, input_channels, downsample=False, upsample=True)
     self.encode_128_256_4 = Block(input_channels, input_channels, downsample=False, upsample=True)
     
-    self.encode_motion = nn.Conv2d(3, input_channels, kernel_size=5, stride=1, padding=2)
-    self.bn4 = nn.BatchNorm2d(input_channels)
-    self.cat_encode_256 = Block(input_channels * 3, input_channels * 3, downsample=False, upsample=False)
+    self.cat_encode_256 = Block(input_channels * 2, input_channels * 2, downsample=False, upsample=False)
     
-    self.shrink = nn.Conv2d(input_channels * 3, input_channels, kernel_size=3, stride=1, padding=1)
+    self.shrink = nn.Conv2d(input_channels * 2, input_channels, kernel_size=3, stride=1, padding=1)
     self.bn5 = nn.BatchNorm2d(input_channels)
     self.shrink_2 = nn.Conv2d(input_channels, half_input_channels, kernel_size=3, stride=1, padding=1)
     self.bn6 = nn.BatchNorm2d(half_input_channels)
@@ -195,6 +196,8 @@ class Vertex2Image(nn.Module):
     x = self.concat_decode_256(x)
     x = self.bn3(x)
 
+    motions = self.encode_motion(motion_vector)
+    motions = self.bn4(motions)
 
     deconv_256_128_1 = self.decode_256_128_1(x)
     deconv_128_64_1 = self.decode_128_64_1(deconv_256_128_1)
@@ -209,7 +212,7 @@ class Vertex2Image(nn.Module):
     encode_64_128_1 = self.encode_64_128_1(deconv_128_64_1)
     encode_128_256_1 = self.encode_128_256_1(deconv_256_128_1)
 
-    cat_256_1 = torch.cat( (encode_128_256_1, connect_256_256_1), 1 )
+    cat_256_1 = torch.cat( (encode_128_256_1, connect_256_256_1, motions), 1 )
 
     cat_256_1 = self.transit_bn1(self.transit_256_1(cat_256_1))
 
@@ -235,7 +238,7 @@ class Vertex2Image(nn.Module):
     encode_64_128_2 = self.encode_64_128_2(cat_64_1)
     encode_32_64_2 = self.encode_32_64_2(cat_32)
     
-    cat_256_2 = torch.cat( (encode_128_256_2, connect_256_256_2), 1 )
+    cat_256_2 = torch.cat( (encode_128_256_2, connect_256_256_2, motions), 1 )
 
     cat_256_2 = self.transit_bn2(self.transit_256_2(cat_256_2))
 
@@ -255,7 +258,7 @@ class Vertex2Image(nn.Module):
     encode_64_128_3 = self.encode_64_128_3(cat_64_2)
     encode_128_256_3 = self.encode_128_256_3(cat_128_2)
 
-    cat_256_3 = torch.cat( (encode_128_256_3, connect_256_256_3), 1 )
+    cat_256_3 = torch.cat( (encode_128_256_3, connect_256_256_3, motions), 1 )
     cat_256_3 = self.transit_bn3(self.transit_256_3(cat_256_3))
 
     deconv_256_128_4 = self.decode_256_128_4(cat_256_3)
@@ -265,9 +268,8 @@ class Vertex2Image(nn.Module):
     connect_256_256_4 = self.connect_256_256_4(cat_256_3)
     encode_128_256_4 = self.encode_128_256_4(cat_128_3)
 
-    motions = self.encode_motion(motion_vector)
-    motions = self.bn4(motions)
-    cat_256_4 = torch.cat( (encode_128_256_4, connect_256_256_4, motions), 1 )
+    
+    cat_256_4 = torch.cat( (encode_128_256_4, connect_256_256_4), 1 )
     cat_encode_256 = self.cat_encode_256(cat_256_4)
 
     out = self.shrink(cat_encode_256)
