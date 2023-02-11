@@ -42,3 +42,12 @@ Vertex2Image \
 To run the model, just run "py train.py". If you want to customize to your dataset, the prerequisit steps are extracted images from videos and SMPL information (vertices and joint rotation). It is not neccessary to extract images because you can easily modify the code and run directly with a video source. If you use CV2, make sure to convert the image to RBG format before feeding the frames into the model. I may implement the video input method in the future.
 
 The requirements.txt does not include torch package. Any 1.XX version of Pytorch works with the code. If you do not want to train on GPU, just set "CUDA = False" in the train.py file.
+
+<br />
+**Overall Architecture**
+<img src="./results/model.png" width="300" height="300" />
+
+<br />
+
+**UNet ++**
+<img src="./results/unet++.png" width="300" height="300" />
