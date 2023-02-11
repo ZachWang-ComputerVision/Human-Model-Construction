@@ -1,10 +1,10 @@
 # Vertex2Image
  
-Published on ACM Conference on Intelligent User Interfaces (ACM IUI) 2023
+**Published on ACM Conference on Intelligent User Interfaces (ACM IUI) 2023**
 
 This project is based on the SMPL and UNet++ model to construct a targeted human figure. Vertex2Image uses SMPL vertices' spatial information to collect color and motion information. Vertex2Image is presenting a human figure model, not constructing an actual human model. With a given camera direction, we can determine which vertices are in the scene, then feeding the vertices' information into the model to present what the scene should look like. The biggest advantage we have over other models is the training speed. The model only needs 2 hours of trianing to construct high fidelity human figures.
 
-Folder structure: \
+**Folder structure:** \
 <br />
 Vertex2Image \
 &emsp; | checkpoint \
@@ -21,7 +21,7 @@ Vertex2Image \
 &emsp; | output \
 &emsp; | .py files .....
 
-Output from Vertex2Image model:
+**Output from Vertex2Image model:**
 <br />
 <img src="./results/p1.png" width="100" height="100" />
 <img src="./results/p2.png" width="100" height="100" />
@@ -30,7 +30,7 @@ Output from Vertex2Image model:
 <img src="./results/p5.png" width="100" height="100" />
 <br />
 
-Ground Truth Frames:
+**Ground Truth Frames:**
 <br />
 <img src="./results/g1.png" width="100" height="100" />
 <img src="./results/g2.png" width="100" height="100" />
