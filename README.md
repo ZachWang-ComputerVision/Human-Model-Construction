@@ -45,9 +45,11 @@ The requirements.txt does not include torch package. Any 1.XX version of Pytorch
 
 <br />
 **Overall Architecture**
-<img src="./results/model.png" width="300" height="300" />
+<br />
+<img src="./results/model.png" />
 
 <br />
 
 **UNet ++**
-<img src="./results/unet++.png" width="300" height="300" />
+<br />
+<img src="./results/unet++.png" />
